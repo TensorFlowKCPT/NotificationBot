@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Управление данными</title>
+</head>
+<style>
+    /* Стили для заголовков */
+h2 {
+    font-size: 20px;
+    color: #333;
+}
+
+/* Стили для формы */
+form {
+    margin: 20px 0;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+input[type="submit"] {
+    background-color: #008CBA;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Стили для таблиц */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+/* Стили для таблицы Notifications */
+table:nth-child(3) {
+    margin-top: 20px;
+}
+
+</style>
+<body>
+    <h2>Добавить запись в таблицу Notifications</h2>
+    <form action="/add_notification" method="POST">
+        <label for="group_title">Название Группы:</label>
+        <input type="text" name="group_title" id="group_title" required><br>
+        <label for="lesson_start_time">Начало урока:</label>
+        <input type="text" name="lesson_start_time" id="lesson_start_time" required><br>
+        <label for="lesson_end_time">Конец урока:</label>
+        <input type="text" name="lesson_end_time" id="lesson_end_time" required><br>
+        <label for="lesson_day">День недели:</label>
+        <input type="text" name="lesson_day" id="lesson_day" required><br>
+        <input type="submit" value="Добавить запись">
+    </form>
+
+    <h2>Группы</h2>
+    <table>
+        <tr>
+            <th>Название</th>
+        </tr>
+        {% for group in data['Groups'] %}
+        <tr>
+            <td>{{ group }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Таблица Notifications</h2>
+    <table>
+        <tr>
+            <th>Группа</th>
+            <th>Начало урока</th>
+            <th>Конец урока</th>
+            <th>День</th>
+        </tr>
+        {% for Notification in data['Notifications'] %}
+        <tr>
+            <td>{{ Notification.Group }}</td>
+            <td>{{ Notification.LessonStart }}</td>
+            <td>{{ Notification.LessonEnd }}</td>
+            <td>{{ Notification.Day }}</td>
+            <td><button onclick="deleteRow('{{ Notification.ID }}')">Удалить</button></td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+</body>
+<script>
+    function deleteRow(notificationId) {
+        // Выполните GET-запрос на сервер для удаления записи
+        fetch(`/delete_notification?id=${notificationId}`, {
+            method: 'GET',
+        })
+        .then(response => {
+            if (response.status === 200) {
+                // Удаление строки из таблицы после успешного удаления на сервере
+                var row = document.querySelector(`[data="${notificationId}"]`);
+                row.remove();
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка при удалении записи:', error);
+        });
+        location.reload();
+    }
+</script>
+</html>
