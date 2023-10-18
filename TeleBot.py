@@ -166,7 +166,7 @@ def schedule_monitor():
         with sqlite3.connect('ScheduleBot.db') as conn:
             cursor = conn.execute("SELECT * FROM Notifications")
             result = cursor.fetchall()
-            current_time = datetime.datetime.now().strftime("%H:%M")
+            current_time = (datetime.datetime.now() - datetime.timedelta(hours=2)).strftime("%H:%M")
             current_weekday = datetime.datetime.now().weekday()
             
             for i in result:
