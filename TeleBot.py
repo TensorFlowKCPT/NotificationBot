@@ -124,7 +124,7 @@ def process_update(update):
                                    f"Сообщение о начале урока: {lessonStartMessage}\n" \
                                    f"Сообщение о конце урока: {lessonEndMessage}"
 
-            bot.send_message(update['message']['chat']['id'], text='\n'+formatted_message+'\n')
+            bot.send_message(update['message']['chat']['id'], text='```\n'+formatted_message+'\n```')
             return
     except KeyError:
         pass
