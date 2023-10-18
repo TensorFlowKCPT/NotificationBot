@@ -36,7 +36,9 @@ def StartDatabase():
                              GroupId TEXT NOT NULL,
                              LessonStartTime TIME NOT NULL,
                              LessonEndTime TIME NOT NULL,
-                             LessonDay INTEGER NOT NULL
+                             LessonDay INTEGER NOT NULL,
+                             LessonStartNotificationText TEXT,
+                             LessonEndNotificationText TEXT
                              )''')
 
 def main():
@@ -94,18 +96,22 @@ def process_update(update):
                     G.GroupTitle,
                     N.LessonStartTime,
                     N.LessonEndTime,
-                    N.LessonDay
+                    N.LessonDay,
+                    N.LessonStartNotificationText,
+                    N.LessonEndNotificationText
                 FROM Notifications N
                 JOIN GroupChats G ON N.GroupId = G.GroupId
                 ''')
                 result = cursor.fetchall()
             formatted_message = ''
             for row in result:
-                group_title, lesson_start_time, lesson_end_time, lesson_day = row
+                group_title, lesson_start_time, lesson_end_time, lesson_day, lessonStartMessage, lessonEndMessage = row
                 formatted_message += f"Группа: {group_title}\n" \
                                    f"Начало урока: {lesson_start_time}\n" \
                                    f"Окончание урока: {lesson_end_time}\n" \
-                                   f"День урока: {days_in_russian[lesson_day]}\n\n\n"
+                                   f"День урока: {days_in_russian[lesson_day]}\n" \
+                                   f"Сообщение о начале урока: {lessonStartMessage}\n" \
+                                   f"Сообщение о конце урока: {lessonEndMessage}"
 
             bot.send_message(update['message']['chat']['id'], text='\n'+formatted_message+'\n')
             return
@@ -164,12 +170,11 @@ def schedule_monitor():
             current_weekday = datetime.datetime.now().weekday()
             
             for i in result:
-                print(current_time)
                 if i[2] == current_time and i[4] == current_weekday:
                     print(3)
-                    bot.send_message(i[1], "Урок начался!")
+                    bot.send_message(i[1], i[5])
                 elif i[3] == current_time and i[4] == current_weekday:
-                    bot.send_message(i[1], "Урок окончен")
+                    bot.send_message(i[1], i[6])
 
         time.sleep(60) 
 

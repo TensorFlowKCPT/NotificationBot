@@ -36,6 +36,8 @@ async def index(request):
             N.LessonStartTime,
             N.LessonEndTime,
             N.LessonDay,
+            N.LessonStartNotificationText,
+            N.LessonEndNotificationText,
             N.ID
         FROM Notifications N
         JOIN GroupChats G ON N.GroupId = G.GroupId
@@ -47,7 +49,9 @@ async def index(request):
                 'LessonStart' : row[1],
                 'LessonEnd' : row[2],
                 'Day' : days_in_russian[row[3]],
-                'ID' : row[4]
+                'LessonStartMsg': row[4],
+                'LessonEndMsg': row[5],
+                'ID' : row[6]
             })
             
    
@@ -76,9 +80,11 @@ async def add_notification(request):
     with sqlite3.connect('ScheduleBot.db') as conn:
         group_id = conn.execute('''SELECT GroupId FROM GroupChats WHERE GroupTitle = ?''',(group_title,)).fetchone()[0]
     lesson_day = days_in_russian.index(lesson_day.lower())
+    lessonStartMessage = request.form.get('lesson_start_message')
+    lessonEndMessage = request.form.get('lesson_end_message')
     
     with sqlite3.connect('ScheduleBot.db') as conn:
-        conn.execute('''INSERT INTO Notifications(GroupId, LessonStartTime, LessonEndTime, LessonDay) VALUES (?, ?, ?, ?)''',(group_id, lesson_start_time, lesson_end_time, lesson_day, ))
+        conn.execute('''INSERT INTO Notifications(GroupId, LessonStartTime, LessonEndTime, LessonDay,LessonStartNotificationText,LessonEndNotificationText) VALUES (?, ?, ?, ?, ?, ?)''',(group_id, lesson_start_time, lesson_end_time, lesson_day, lessonStartMessage, lessonEndMessage))
     
 
     return response.redirect('/')

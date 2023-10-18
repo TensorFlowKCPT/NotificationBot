@@ -68,8 +68,12 @@ table:nth-child(3) {
         <input type="text" name="group_title" id="group_title" required><br>
         <label for="lesson_start_time">Начало урока:</label>
         <input type="text" name="lesson_start_time" id="lesson_start_time" required><br>
+        <label for="lesson_start_message">Сообщение о начале урока:</label>
+        <input type="text" name="lesson_start_message" id="lesson_start_message" required><br>
         <label for="lesson_end_time">Конец урока:</label>
         <input type="text" name="lesson_end_time" id="lesson_end_time" required><br>
+        <label for="lesson_end_message">Сообщение о конце урока:</label>
+        <input type="text" name="lesson_end_message" id="lesson_end_message" required><br>
         <label for="lesson_day">День недели:</label>
         <input type="text" name="lesson_day" id="lesson_day" required><br>
         <input type="submit" value="Добавить запись">
@@ -94,6 +98,9 @@ table:nth-child(3) {
             <th>Начало урока</th>
             <th>Конец урока</th>
             <th>День</th>
+            <th>Сообщение при начале урока</th>
+            <th>Сообщение в концее урока</th>
+            <th>Удалить</th>
         </tr>
         {% for Notification in data['Notifications'] %}
         <tr>
@@ -101,6 +108,8 @@ table:nth-child(3) {
             <td>{{ Notification.LessonStart }}</td>
             <td>{{ Notification.LessonEnd }}</td>
             <td>{{ Notification.Day }}</td>
+            <td>{{ Notification.LessonStartMsg }}</td>
+            <td>{{ Notification.LessonEndMsg }}</td>
             <td><button onclick="deleteRow('{{ Notification.ID }}')">Удалить</button></td>
         </tr>
         {% endfor %}
