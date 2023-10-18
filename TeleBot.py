@@ -175,6 +175,7 @@ def GetGroupsKeyboard():
 def schedule_monitor():
     while True:
         with sqlite3.connect('ScheduleBot.db') as conn:
+            print("Проверяю!")
             cursor = conn.execute("SELECT * FROM Notifications")
             result = cursor.fetchall()
             current_time = datetime.datetime.now().strftime("%H:%M")
@@ -182,9 +183,10 @@ def schedule_monitor():
             
             for i in result:
                 if i[2] == current_time and i[4] == current_weekday:
-                    print(3)
+                    print(i[1], i[5])
                     bot.send_message(i[1], i[5])
                 elif i[3] == current_time and i[4] == current_weekday:
+                    print(i[1], i[5])
                     bot.send_message(i[1], i[6])
 
         time.sleep(60) 
