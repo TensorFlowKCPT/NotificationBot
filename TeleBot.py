@@ -65,7 +65,7 @@ days_in_russian = ['понедельник', 'вторник', 'среда', 'ч
 def process_update(update):
     print(update)
     try:
-        if update['message']['chat']['type'] == 'group' and update['message']['new_chat_member']['first_name'] == "NotificationBot":
+        if update['message']['chat']['type'] == 'group' and update['message']['new_chat_member']['id'] == 6487553292:
             #Бот добавлен в новую группу
             with sqlite3.connect('ScheduleBot.db') as conn:
                 insert_query = "INSERT OR IGNORE INTO GroupChats (GroupId, GroupTitle) VALUES (?, ?)"
@@ -80,7 +80,18 @@ def process_update(update):
             return
     except KeyError:
         pass
-
+    try:
+        if update['my_chat_member']['chat']['type'] == 'group' and update['my_chat_member']['old_chat_member']['user']['id'] == 6487553292:
+            with sqlite3.connect('ScheduleBot.db') as conn:
+                query = "DELETE FROM Notifications WHERE GroupId = ?"
+                conn.execute(query,(update['my_chat_member']['chat']['id'],))
+            with sqlite3.connect('ScheduleBot.db') as conn:
+                query = "DELETE FROM GroupChats WHERE GroupId = ?"
+                conn.execute(query,(update['my_chat_member']['chat']['id'],))
+                
+            return
+    except KeyError:
+        pass
     try:
         if update['message']['chat']['type'] == 'private' and update['message']['text'] == "QWERTYQWERTY":
             #Бот получил пароль
@@ -166,7 +177,7 @@ def schedule_monitor():
         with sqlite3.connect('ScheduleBot.db') as conn:
             cursor = conn.execute("SELECT * FROM Notifications")
             result = cursor.fetchall()
-            current_time = (datetime.datetime.now() - datetime.timedelta(hours=2)).strftime("%H:%M")
+            current_time = datetime.datetime.now().strftime("%H:%M")
             current_weekday = datetime.datetime.now().weekday()
             
             for i in result:
