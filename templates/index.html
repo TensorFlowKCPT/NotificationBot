@@ -73,7 +73,11 @@ table:nth-child(3) {
     <h2>Добавить запись в таблицу Notifications</h2>
     <form action="/add_notification" method="POST">
         <label for="group_title">Название Группы:</label>
-        <input type="text" name="group_title" id="group_title" required><br>
+        <select name="group_title" id="group_title" required>
+            {% for group in data['Groups'] %}
+            <option value="{{ group }}">{{ group }}</option>
+            {% endfor %}
+        </select><br>
         <label for="lesson_start_time">Начало урока:</label>
         <input type="text" name="lesson_start_time" id="lesson_start_time" required><br>
         <label for="lesson_start_message">Сообщение о начале урока:</label>
