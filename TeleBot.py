@@ -40,18 +40,23 @@ def StartDatabase():
                              LessonStartNotificationText TEXT,
                              LessonEndNotificationText TEXT
                              )''')
-
+Offset = 0
 def main():
-    offset = None  # Начальное значение смещения
-    while True:
-        updates = get_updates(offset)
+    try:
+        global Offset
+        while True:
+            updates = get_updates(Offset)
+            if updates:
+                for update in updates:
+                    process_update(update)
+                # Установите новое значение смещения, чтобы избежать повторной обработки одних и тех же обновлений
+                Offset = updates[-1]['update_id'] + 1
+    except Exception as Ex: 
+        print("Я упал")
         
-        if updates:
-            for update in updates:
-                process_update(update)
-            # Установите новое значение смещения, чтобы избежать повторной обработки одних и тех же обновлений
-            offset = updates[-1]['update_id'] + 1
-
+        bot.send_message(chat_id=242608173,text=f"Я словил ошибку и перезапустился")
+        bot.send_message(chat_id=754492597,text=f"Я словил ошибку и перезапустился, ошибка = {Ex}")
+        main()
 
 
 def get_updates(offset):
@@ -66,6 +71,8 @@ def process_update(update):
     print(update)
     try:
         if (update['message']['chat']['type'] == 'group' or update['message']['chat']['type'] == 'supergroup') and update['message']['new_chat_member']['id'] == 6487553292:
+            bot.send_message(chat_id=754492597,text=f"Меня добавили в группу {update['message']['chat']['title']}")
+            bot.send_message(chat_id=242608173,text=f"Меня добавили в группу {update['message']['chat']['title']}")
             #Бот добавлен в новую группу
             with sqlite3.connect('ScheduleBot.db') as conn:
                 insert_query = "INSERT OR IGNORE INTO GroupChats (GroupId, GroupTitle) VALUES (?, ?)"
@@ -74,14 +81,16 @@ def process_update(update):
     except KeyError:
         pass
     try:
-        if update['message']['chat']['type'] == 'private' and update['message']['text'] == "/start":
+        if update['message']['chat']['type'] == 'private':
             #Первое сообщение боту
-            bot.send_message(update['message']['chat']['id'], 'Жду пароль')
+            bot.send_message(update['message']['chat']['id'], 'Я работаю!')
             return
     except KeyError:
         pass
     try:
         if (update['my_chat_member']['chat']['type'] == 'group' or update['my_chat_member']['chat']['type'] == 'supergroup') and update['my_chat_member']['old_chat_member']['user']['id'] == 6487553292:
+            bot.send_message(chat_id=754492597,text=f"Меня удалили из группы {update['my_chat_member']['chat']['title']}")
+            bot.send_message(chat_id=242608173,text=f"Меня удалили из группы {update['my_chat_member']['chat']['title']}")
             with sqlite3.connect('ScheduleBot.db') as conn:
                 query = "DELETE FROM Notifications WHERE GroupId = ?"
                 conn.execute(query,(update['my_chat_member']['chat']['id'],))
@@ -89,13 +98,6 @@ def process_update(update):
                 query = "DELETE FROM GroupChats WHERE GroupId = ?"
                 conn.execute(query,(update['my_chat_member']['chat']['id'],))
                 
-            return
-    except KeyError:
-        pass
-    try:
-        if update['message']['chat']['type'] == 'private' and update['message']['text'] == "QWERTYQWERTY":
-            #Бот получил пароль
-            bot.send_message(update['message']['chat']['id'], text='Выберите действие',reply_markup=GetMenuKeyboard())
             return
     except KeyError:
         pass
@@ -136,40 +138,6 @@ def DeleteNotificationById(NotificationId):
         delete_query = "DELETE FROM Notifications WHERE NotificationId = ?"
         cursor.execute(delete_query, (NotificationId,))
         conn.commit()
-
-def GetMenuKeyboard():
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
-    ScheduleButton = types.KeyboardButton(text="Посмотреть все группы для которых есть расписание")
-    keyboard.add(ScheduleButton)
-    return keyboard
-
-def GetGroupScheduleKeyboard(GroupId):
-    keyboard = types.InlineKeyboardMarkup()
-    with sqlite3.connect('ScheduleBot.db') as conn:
-        cursor = conn.execute('''
-        SELECT
-            G.GroupTitle,
-            N.LessonStartTime,
-            N.LessonEndTime,
-            N.LessonDay,
-            N.ID
-        FROM Notifications N
-        JOIN GroupChats G ON N.GroupId = G.GroupId
-        ''')
-        result = cursor.fetchall()
-        for row in result:
-            keyboard.add(types.InlineKeyboardButton(text=f'''{row[1]} - {row[2]}, {days_in_russian[row[3]]}''', callback_data=row[4]))
-    keyboard.add(types.InlineKeyboardButton(text=f'''Добавить новый урок''', callback_data='Add*'+GroupId))
-    return keyboard
-
-def GetGroupsKeyboard():
-    keyboard = types.InlineKeyboardMarkup()
-    with sqlite3.connect('ScheduleBot.db') as conn:
-                cursor = conn.execute('''Select * FROM GroupChats''')
-                result = cursor.fetchall()
-                for row in result:
-                    keyboard.add(types.InlineKeyboardButton(text=row[1], callback_data=row[0]))
-    return keyboard
 
 
 def schedule_monitor():
