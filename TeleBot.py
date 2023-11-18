@@ -54,7 +54,7 @@ def main():
     except Exception as Ex: 
         print("Я упал")
         
-        bot.send_message(chat_id=242608173,text=f"Я словил ошибку и перезапустился")
+        bot.send_message(chat_id=695308592,text=f"Я словил ошибку и перезапустился")
         bot.send_message(chat_id=754492597,text=f"Я словил ошибку и перезапустился, ошибка = {Ex}")
         main()
 
@@ -72,7 +72,7 @@ def process_update(update):
     try:
         if (update['message']['chat']['type'] == 'group' or update['message']['chat']['type'] == 'supergroup') and update['message']['new_chat_member']['id'] == 6487553292:
             bot.send_message(chat_id=754492597,text=f"Меня добавили в группу {update['message']['chat']['title']}")
-            bot.send_message(chat_id=242608173,text=f"Меня добавили в группу {update['message']['chat']['title']}")
+            bot.send_message(chat_id=695308592,text=f"Меня добавили в группу {update['message']['chat']['title']}")
             #Бот добавлен в новую группу
             with sqlite3.connect('ScheduleBot.db') as conn:
                 insert_query = "INSERT OR IGNORE INTO GroupChats (GroupId, GroupTitle) VALUES (?, ?)"
@@ -90,7 +90,7 @@ def process_update(update):
     try:
         if (update['my_chat_member']['chat']['type'] == 'group' or update['my_chat_member']['chat']['type'] == 'supergroup') and update['my_chat_member']['old_chat_member']['user']['id'] == 6487553292:
             bot.send_message(chat_id=754492597,text=f"Меня удалили из группы {update['my_chat_member']['chat']['title']}")
-            bot.send_message(chat_id=242608173,text=f"Меня удалили из группы {update['my_chat_member']['chat']['title']}")
+            bot.send_message(chat_id=695308592,text=f"Меня удалили из группы {update['my_chat_member']['chat']['title']}")
             with sqlite3.connect('ScheduleBot.db') as conn:
                 query = "DELETE FROM Notifications WHERE GroupId = ?"
                 conn.execute(query,(update['my_chat_member']['chat']['id'],))
