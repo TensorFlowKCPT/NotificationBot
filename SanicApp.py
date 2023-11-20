@@ -13,10 +13,6 @@ env = Environment(
     autoescape=select_autoescape(['html', 'xml'])
 )
 
-def run_another_file():
-    import subprocess
-    python_file_path = "TeleBot.py"
-    subprocess.run(["python", python_file_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 days_in_russian = ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье']
 @app.route("/")
 async def index(request):
@@ -92,6 +88,4 @@ async def add_notification(request):
 
 if __name__ == "__main__":
     print("Запуск")
-    thread = threading.Thread(target=run_another_file)
-    thread.start()
     app.run(host="0.0.0.0", port=8000)
